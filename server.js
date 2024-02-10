@@ -3,6 +3,9 @@ const express = require("express");
 const expressLayouts = require("express-ejs-layouts");
 const mongoose = require("mongoose");
 const indexRouter = require("./routes/index");
+const authorsRouter = require("./routes/authors");
+const bodyParser = require("body-parser");
+
 if (process.env.NODE_ENV !== "production") {
     dotenv.config();
 }
@@ -14,20 +17,21 @@ app.set("views", __dirname + "/views");
 app.set("layout", "layouts/layout");
 app.use(expressLayouts);
 app.use(express.static("public"));
-// console.log("lih", process.env.DATABASE_URL);
+app.use(bodyParser.urlencoded({ limit: "10mb", extended: false }));
 
 const dbConnect = async () => {
-    await mongoose.connect(process.env.DATABASE_URL);
+    mongoose.connect(process.env.DATABASE_URL);
 };
 
 dbConnect()
     .then(() => {
-        console.log("connected to mongoose");
+        console.log("connected to mongoose!");
     })
     .catch((e) => {
         console.error(e);
     });
 
 app.use("/", indexRouter);
+app.use("/authors", authorsRouter);
 
 app.listen(process.env.PORT || 3000);
